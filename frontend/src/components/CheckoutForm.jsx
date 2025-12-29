@@ -16,12 +16,27 @@ export default function CheckoutForm() {
         setForm({ ...form, [e.target.name]: e.target.value })
     }
 
+    function isValidEmail(email) {
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+    }
+
+    const isFormValid =
+        form.name.trim() &&
+        form.email.trim() &&
+        isValidEmail(form.email) &&
+        form.phone.trim() &&
+        form.address.trim() &&
+        form.amount && Number(form.amount) > 0
+
     async function onSubmit(e) {
         e.preventDefault()
         setLoading(true)
         setError(null)
         try {
-            const resp = await fetch('https://api.purnamyogashala.com/payment/initiate', {
+            const resp = await fetch(
+                'https://api.purnamyogashala.com/initiatePayment'
+                // 'http://localhost:5000/initiatePayment'
+                , {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(form)
@@ -49,7 +64,7 @@ export default function CheckoutForm() {
             component="form"
             onSubmit={onSubmit}
             sx={{
-                maxWidth: 400,
+                width: 400,
                 mx: 'auto',
                 mt: 6,
                 p: 4,
@@ -94,6 +109,7 @@ export default function CheckoutForm() {
                 name="address"
                 value={form.address}
                 onChange={onChange}
+                required
                 fullWidth
             />
             <TextField
@@ -110,7 +126,7 @@ export default function CheckoutForm() {
                 type="submit"
                 variant="contained"
                 color="primary"
-                disabled={loading}
+                disabled={loading || !isFormValid}
                 fullWidth
                 sx={{ mt: 2 }}
             >
